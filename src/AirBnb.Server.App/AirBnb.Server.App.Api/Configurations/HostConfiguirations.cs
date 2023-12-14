@@ -19,7 +19,7 @@ public static partial class HostConfigurations
     {
         await app.SeedDataAsync();
         app.UseCors();
-        app.UseExposers().UseDevTools();
+        app.UseExposers().UseDevTools().UseStaticFiles();
         
         return app;
     }

@@ -2,8 +2,11 @@
 using AirBnb.Server.App.Application.Locations.Services;
 using AirBnb.Server.App.Domain.Common.Query;
 using AirBnb.Server.App.Domain.Entities;
+using AirBnb.Server.App.Infrastructure.Extensions;
+using AirBnb.Server.App.Infrastructure.Locations.Settings;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace AirBnb.Server.App.Api.Controllers;
 
@@ -12,14 +15,26 @@ namespace AirBnb.Server.App.Api.Controllers;
 public class LocationCategoryController(ILocationCategoryService locationCategoryService, IMapper mapper) : ControllerBase
 {
     [HttpGet]
-    public async ValueTask<IActionResult> Get([FromQuery] FilterPagination filterPagination)
+    public async ValueTask<IActionResult> Get(
+        [FromQuery] FilterPagination filterPagination, 
+        [FromServices] IOptions<ApiSettings> apiSettings,
+        CancellationToken cancellationToken
+        )
     {
         var specification = new QuerySpecification<LocationCategory>(filterPagination.PageSize, filterPagination.PageToken);
-        var result = await locationCategoryService.GetAsync(specification);
+        var result = await locationCategoryService.GetAsync(specification, true, cancellationToken);
 
-        return result.Any() ? Ok(result) : NotFound();
+        var locationCategories = result.Select(locationCategory => new LocationCategoryDto()
+        {
+            Id = locationCategory.Id,
+            Name = locationCategory.Name,
+            ImageUrl = locationCategory.ImageUrl.ToUrl(apiSettings.Value.ApiUrl)
+        });
+        return locationCategories.Any() ? Ok(locationCategories) : NotFound();
     }
 
+    
+    
     [HttpGet("{locationId:guid}")]
     public async ValueTask<IActionResult> GetById([FromRoute] Guid locationCategoryId)
     {

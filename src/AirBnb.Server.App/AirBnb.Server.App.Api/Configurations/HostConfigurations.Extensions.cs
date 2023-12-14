@@ -68,6 +68,8 @@ public static partial class HostConfigurations
         builder.Services.AddDbContext<LocationsDbContext>(
             options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection(nameof(ApiSettings)));
+        
         builder.Services.AddScoped<ILocationsService, LocationsService>();
         builder.Services.AddScoped<ILocationCategoryService, LocationCategoryService>();
         
