@@ -32,8 +32,6 @@ public class LocationCategoryController(ILocationCategoryService locationCategor
         });
         return locationCategories.Any() ? Ok(locationCategories) : NotFound();
     }
-
-    
     
     [HttpGet("{locationId:guid}")]
     public async ValueTask<IActionResult> GetById([FromRoute] Guid locationCategoryId)
